@@ -22,7 +22,6 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
 
 
 
@@ -196,8 +195,6 @@ Project Link: [https://github.com/KyleHassold/GazeChange](https://github.com/Kyl
 [stars-url]: https://github.com/KyleHassold/GazeChange/stargazers
 [issues-shield]: https://img.shields.io/github/issues/KyleHassold/GazeChange.svg?style=for-the-badge
 [issues-url]: https://github.com/KyleHassold/GazeChange/issues
-[license-shield]: https://img.shields.io/github/license/KyleHassold/GazeChange.svg?style=for-the-badge
-[license-url]: https://github.com/KyleHassold/GazeChange/blob/master/LICENSE.txt
 [product-screenshot]: images/screenshot.png
 [MPIIFazeGaze-shield]: https://img.shields.io/badge/MPIIFazeGaze-db6410?style=for-the-badge
 [MPIIFazeGaze-url]: https://www.mpi-inf.mpg.de/departments/computer-vision-and-machine-learning/research/gaze-based-human-computer-interaction/its-written-all-over-your-face-full-face-appearance-based-gaze-estimation
