@@ -138,10 +138,12 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Simple model for detecting gaze target or detecting if gaze is directed at the camera
+- [ ] Simple GAN model for reproducing eyes (No gaze change)
+- [ ] Add secondary discriminator to GAN to train it to adjust gaze
+  - [ ] Nested Feature
+- [ ] Additional Features:
+  - [ ] Analyze gaze direction before applying generator
 
 See the [open issues](https://github.com/KyleHassold/GazeChange/issues) for a full list of proposed features (and known issues).
 
