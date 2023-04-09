@@ -139,9 +139,14 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 ## Roadmap
 
 - [ ] Simple model for detecting gaze target or detecting if gaze is directed at the camera
+  - [ ] Utilize full face preferably
+  - [ ] Determine if we can crop out black background
 - [ ] Simple GAN model for reproducing eyes (No gaze change)
+  - [ ] Input section of image containing eyes
+  - [ ] Generate that same region to splice into original image
+  - [ ] Feed full image into discriminator
 - [ ] Add secondary discriminator to GAN to train it to adjust gaze
-  - [ ] Nested Feature
+  - [ ] Potentially utilize pretrained GAN and Gaze Detector
 - [ ] Additional Features:
   - [ ] Analyze gaze direction before applying generator
 
