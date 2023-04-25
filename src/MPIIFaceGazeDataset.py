@@ -27,7 +27,7 @@ base_transforms = transforms.Compose([transforms.PILToTensor(), transforms.Resiz
 
 class MPIIFaceGaze(Dataset):
     def __init__(self, img_transform=base_transforms, data_src='../data/MPIIFaceGaze', crop=True,
-                 needed_labels=('eye_pos',)):
+                 needed_labels=('eye_pos',), verbose=False):
         self.img_transform = img_transform
         self.needed_labels = needed_labels
         self.data_src = data_src
@@ -36,11 +36,13 @@ class MPIIFaceGaze(Dataset):
         self.images = []
         self.labels = []
         self.person_indexes = [0]
-        for p in os.listdir(self.data_src):
+        for p in sorted(os.listdir(self.data_src)):
             # Confirm current item is a folder
             person_path = os.path.join(self.data_src, p)
             if not os.path.isdir(person_path):
                 continue
+            if verbose:
+                print(f"Loading images of Person {p}:")
 
             # Store the labels for the current person
             labels_dict = {}
@@ -57,6 +59,9 @@ class MPIIFaceGaze(Dataset):
                         self.images.append(os.path.join(day_path, img))
                         self.labels.append(labels_dict[os.path.join(p, d, img)])
             self.person_indexes.append(len(self.images))
+        if verbose:
+            print(f"Loaded {len(self.images)} total images")
+            print("Person changes at " + str(self.person_indexes))
 
     def __len__(self):
         return len(self.images)
@@ -127,7 +132,7 @@ def get_dataloaders(batch_size, dataset=None, split=0.8, shuffle=0, person_val=(
 ### Run Code ###
 
 if __name__ == "__main__":
-    dataset = MPIIFaceGaze()
+    dataset = MPIIFaceGaze(verbose=True)
     print(dataset[0][1])
 
     train_data, val_data = get_dataloaders(4, dataset)
