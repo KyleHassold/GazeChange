@@ -1,11 +1,10 @@
 ### Imports ###
 
-from torch.utils.data import Dataset, DataLoader
-import matplotlib.pyplot as plt
+from torch.utils.data import Dataset
 from PIL import Image
 import numpy as np
-from scipy.io import loadmat
 import os
+from tqdm import tqdm
 
 
 ### Classes ###
@@ -58,10 +57,10 @@ class MPIIFaceGaze(Dataset):
     def __getitem__(self, index):
         img = Image.open(self.images[index]).convert('RGB')
 
-        # x = np.array(img).sum(axis=2)
-        # x[x < 60] = 0
-        # x = np.nonzero(x)
-        # img = img.crop((np.min(x[1]), np.min(x[0]), np.max(x[1]), np.max(x[0])))
+        x = np.array(img).sum(axis=2)
+        x[x < 60] = 0
+        x = np.nonzero(x)
+        img = img.crop((np.min(x[1]), np.min(x[0]), np.max(x[1]), np.max(x[0])))
 
         data = self.labels[self.images[index][len(self.data_src)+1:]]
 
@@ -74,10 +73,16 @@ if __name__ == "__main__":
     dataset = MPIIFaceGaze(None)
     print(len(dataset))
     print(list(dataset.labels.keys())[0])
-    for i in np.random.choice(range(len(dataset)), 50):
-        face, direct = dataset[i]
-        print(np.array(face).shape)
-        print(direct)
-        plt.imshow(face)
-        plt.scatter(*np.reshape(direct[:-3], (-1, 2)).T, 5, 'r')
-        plt.show()
+    sizes = []
+    for i in tqdm(range(len(dataset)//20)):
+        sizes.append(dataset[i][0].size)
+    print(sizes[1])
+    print(np.percentile(sizes, [0, 25, 50, 75, 100], axis=0))
+
+    # for i in np.random.choice(range(len(dataset)), 50):
+    #     face, direct = dataset[i]
+    #     print(np.array(face).shape)
+    #     print(direct)
+    #     plt.imshow(face)
+    #     plt.scatter(*np.reshape(direct[:-3], (-1, 2)).T, 5, 'r')
+    #     plt.show()
