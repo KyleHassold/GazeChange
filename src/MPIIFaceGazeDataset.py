@@ -1,6 +1,7 @@
 ### Imports ###
 
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
+from torchvision import transforms
 import matplotlib.pyplot as plt
 from PIL import Image
 import numpy as np
@@ -19,19 +20,18 @@ data_points = {  # Source: https://www.mpi-inf.mpg.de/departments/computer-visio
     'gaze_target': (23, 26)     # The 3D gaze target location in the camera coordinate system
 }
 
+base_transforms = transforms.Compose([transforms.PILToTensor(), transforms.Resize((300, 300), antialias=True)])
+
 
 ### Classes ###
 
 class MPIIFaceGaze(Dataset):
-    def __init__(self, img_transform=None, mode='train', data_src='../data/MPIIFaceGaze', crop=True,
+    def __init__(self, img_transform=base_transforms, data_src='../data/MPIIFaceGaze', crop=True,
                  needed_labels=('eye_pos',)):
-        if mode not in ['train', 'test', 'val']:
-            raise ValueError('Invalid Split %s' % mode)
-        self.mode = mode
-        self.data_src = data_src
         self.img_transform = img_transform
-        self.crop = crop
         self.needed_labels = needed_labels
+        self.data_src = data_src
+        self.crop = crop
 
         self.images = []
         self.labels = []
@@ -74,6 +74,17 @@ class MPIIFaceGaze(Dataset):
             # Adjust any labels corresponding to pixel values
             data[[2, 4, 6, 8, 10, 12]] -= np.min(x[1])
             data[[3, 5, 7, 9, 11, 13]] -= np.min(x[0])
+
+        # Apply image transforms
+        if self.img_transform is not None:
+            img_size = img.size
+            img = self.img_transform(img)
+
+            # Correct data (assuming only resize)
+            if img.size()[1] != img_size[0]:
+                data[[2, 4, 6, 8, 10, 12]] *= img.size()[1]/img_size[0]
+            if img.size()[2] != img_size[1]:
+                data[[3, 5, 7, 9, 11, 13]] *= img.size()[2]/img_size[1]
 
         # Collect desired data
         data = np.reshape([data[data_points[p][0]:data_points[p][1]] for p in self.needed_labels], -1)
@@ -118,7 +129,9 @@ def get_dataloaders(batch_size, dataset=None, split=0.8, shuffle=0, person_val=(
 if __name__ == "__main__":
     dataset = MPIIFaceGaze()
     print(dataset[0][1])
-    face, marks = dataset[0]
-    plt.imshow(face)
-    plt.scatter(*np.reshape(marks, (-1, 2)).T, 5, 'r')
-    plt.show()
+
+    train_data, val_data = get_dataloaders(4, dataset)
+    for face, marks in train_data:
+        plt.imshow(face[0].permute(1, 2, 0))
+        plt.scatter(*np.reshape(marks[0], (-1, 2)).T, 5, 'r')
+        plt.show()
