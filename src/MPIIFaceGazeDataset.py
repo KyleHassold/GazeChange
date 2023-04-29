@@ -1,5 +1,5 @@
 ### Imports ###
-
+import torch
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler
 from torchvision import transforms
 import matplotlib.pyplot as plt
@@ -20,7 +20,8 @@ data_points = {  # Source: https://www.mpi-inf.mpg.de/departments/computer-visio
     'gaze_target': (23, 26)     # The 3D gaze target location in the camera coordinate system
 }
 
-base_transforms = transforms.Compose([transforms.PILToTensor(), transforms.Resize((300, 300), antialias=True)])
+base_transforms = transforms.Compose([transforms.ToTensor(), transforms.Resize((300, 300), antialias=True),])
+                                      # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 
 ### Classes ###
@@ -129,6 +130,27 @@ def get_dataloaders(batch_size, dataset=None, split=0.8, shuffle=0, person_val=(
     return train_loader, validation_loader
 
 
+def crop_eyes(imgs, eye_locs):
+    eye_imgs = []
+    for face, eyes in zip(imgs, eye_locs.to(torch.int)):
+        top = max(min(eyes[1::2]).item() - 20, 0)
+        left = max(min(eyes[::2]).item() - 20, 0)
+        eye_imgs.append(face[:, top:top + 48, left:left + 160])
+    return torch.stack(eye_imgs)
+
+
+def insert_eyes(imgs, eye_locs, eyes):
+    eye_imgs = []
+    for face, locs, eye in zip(imgs, eye_locs.to(torch.int), eyes):
+        top = max(min(locs[1::2]).item() - 20, 0)
+        left = max(min(locs[::2]).item() - 20, 0)
+        # face[:, top:top + 48, left:left + 160] = eye
+        new_img = torch.cat((face[:, top:top + 48, 0:left], eye, face[:, top:top + 48, left+160:]), dim=2)
+        new_img = torch.cat((face[:, 0:top, :], new_img, face[:, top + 48:, :]), dim=1)
+        eye_imgs.append(new_img)
+    return torch.stack(eye_imgs)
+
+
 ### Run Code ###
 
 if __name__ == "__main__":
@@ -137,6 +159,10 @@ if __name__ == "__main__":
 
     train_data, val_data = get_dataloaders(4, dataset)
     for face, marks in train_data:
+        marks = marks.to(torch.int)
         plt.imshow(face[0].permute(1, 2, 0))
         plt.scatter(*np.reshape(marks[0], (-1, 2)).T, 5, 'r')
+        plt.show()
+        eyes = crop_eyes(face, marks)
+        plt.imshow(eyes[0].permute(1, 2, 0))
         plt.show()
