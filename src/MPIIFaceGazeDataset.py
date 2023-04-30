@@ -28,7 +28,7 @@ base_transforms = transforms.Compose([transforms.ToTensor(), transforms.Resize((
 
 class MPIIFaceGaze(Dataset):
     def __init__(self, img_transform=base_transforms, data_src='../data/MPIIFaceGaze', crop=True,
-                 needed_labels=('eye_pos',), verbose=False):
+                 needed_labels=('eye_pos', 'gaze_target'), verbose=False):
         self.img_transform = img_transform
         self.needed_labels = needed_labels
         self.data_src = data_src
@@ -93,7 +93,7 @@ class MPIIFaceGaze(Dataset):
                 data[[3, 5, 7, 9, 11, 13]] *= img.size()[2]/img_size[1]
 
         # Collect desired data
-        data = np.reshape([data[data_points[p][0]:data_points[p][1]] for p in self.needed_labels], -1)
+        data = np.concatenate([data[data_points[p][0]:data_points[p][1]] for p in self.needed_labels])
 
         return img, data
 
@@ -159,7 +159,8 @@ if __name__ == "__main__":
 
     train_data, val_data = get_dataloaders(4, dataset)
     for face, marks in train_data:
-        marks = marks.to(torch.int)
+        print(marks)
+        marks = marks[:, :8].to(torch.int)
         plt.imshow(face[0].permute(1, 2, 0))
         plt.scatter(*np.reshape(marks[0], (-1, 2)).T, 5, 'r')
         plt.show()
