@@ -22,7 +22,8 @@ beta1 = 0.5
 beta2 = 0.999
 # Number of workers for dataloader
 workers = 2
-batch_size = 16
+# batch_size = 32
+batch_size = 512
 sample_interval = 400
 
 def plot_images(imgs,n_row=4,n_col=4):
